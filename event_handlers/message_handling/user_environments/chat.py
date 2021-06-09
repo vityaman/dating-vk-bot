@@ -53,7 +53,7 @@ class SearchingChat(CallbackEnvironment):
                                 f"- {res.emoji.search} (Search conservation)\n"
                                 f"- {res.emoji.report} (Report user)\n"
                                 f"- {res.emoji.back} (Back to main menu)\n",
-                                keyboard=main_menu_keyboard)
+                                keyboard=chat_keyboard)
 
         @self.callback_method(res.emoji.search)
         def find_chat(bot, user):
