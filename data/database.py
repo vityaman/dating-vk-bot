@@ -98,3 +98,7 @@ class Database(metaclass=MetaSingleton):
 
     class NoSuchUserException(Exception):
         pass
+
+    def close(self):
+        self.cursor.close()
+        self.database.close()

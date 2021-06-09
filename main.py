@@ -14,11 +14,14 @@ if __name__ == '__main__':
     UserMessageHandler.initialize()
 
     longpool = VkBotLongPoll(bot.vk.vk, bot.group_id)
-    for event in longpool.listen():
-        if event.type == VkBotEventType.MESSAGE_NEW:
-            if event.object.peer_id == cfg.VK_ADMIN_CHAT_ID:
-                if event.object.from_id == cfg.VK_ADMIN_ID:
-                    # TODO: admin_message_handler.handle(event.object)
-                    pass
-            else:
-                UserMessageHandler.handle(bot, event.object)
+    try:
+        for event in longpool.listen():
+            if event.type == VkBotEventType.MESSAGE_NEW:
+                if event.object.peer_id == cfg.VK_ADMIN_CHAT_ID:
+                    if event.object.from_id == cfg.VK_ADMIN_ID:
+                        # TODO: admin_message_handler.handle(event.object)
+                        pass
+                else:
+                    UserMessageHandler.handle(bot, event.object)
+    finally:
+        bot.db.close()
