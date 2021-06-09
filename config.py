@@ -1,3 +1,4 @@
+import resources.languages as lang
 import os
 
 
@@ -12,3 +13,6 @@ VK_ADMIN_ID = int(os.environ['VK_ADMIN_ID'])
 
 # database url
 DATABASE_URL = str(os.environ['DATABASE_URL'])
+
+# language
+LANGUAGE = lang.ru
