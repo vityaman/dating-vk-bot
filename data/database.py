@@ -52,7 +52,7 @@ class Database(metaclass=MetaSingleton):
 
     def insert_user(self, user: User):
         self.cursor.execute(
-            f"INSERT INTO {self.USERS_TABLE}"
+            f"INSERT INTO {self.USERS_TABLE} "
             f"VALUES ({user.id}, '{user.name}', {user.age}, "
             f"'{user.about}', '{set_to_str(user.interests)}', '{user.photo}');"
         )
