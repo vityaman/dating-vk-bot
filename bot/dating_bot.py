@@ -51,7 +51,7 @@ class DatingBot(metaclass=MetaSingleton):
 
     def save_user_data(self, user: User):
         if user.id in self.newbies_by_id:
-            self.db.update_user(user)
+            self.db.insert_user(user)
             self.newbies_by_id.pop(user.id)
             self.users_by_id[user.id] = user
         else:
