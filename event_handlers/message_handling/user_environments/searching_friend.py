@@ -1,4 +1,6 @@
-from bot.dating_bot import DatingBot
+import resources.strings as string
+import resources.emojis as emoji
+
 from data.user import User
 from event_handlers.message_handling.base_objects import CallbackEnvironment, static_singleton
 from event_handlers.message_handling.user_message_handler import UserMessageHandler
@@ -12,8 +14,7 @@ class SearchingFriend(CallbackEnvironment):
         del user.env_vars.nextSuggestionsIndex
         del user.env_vars.suggestions
         user.env_type = User.Environment.MAIN_MENU
-        bot.vk.send_message(user.id, "That's all for this session!\n"
-                                     "Welcome back to main menu!",
+        bot.vk.send_message(user.id, string.searching_friend_exit,
                             keyboard=main_menu_keyboard)
 
     def show_next_friend(self, bot, user):
@@ -21,7 +22,7 @@ class SearchingFriend(CallbackEnvironment):
             friend: User = user.env_vars.suggestions[user.env_vars.nextSuggestionsIndex]
             user.env_vars.nextSuggestionsIndex += 1
 
-            bot.vk.send_message(user.id, f"Oh, look what a cool person:\n"
+            bot.vk.send_message(user.id, f"{string.searching_friend_look_next}"
                                          f"{friend.account_info()}",
                                 attachments=(friend.photo,),
                                 keyboard=searching_friend_keyboard)
@@ -32,15 +33,10 @@ class SearchingFriend(CallbackEnvironment):
         @self.callback_method("Guide")
         def searching_partner_guide(bot, user):
             bot.vk.send_message(user.id,
-                                f"You are in searching friends section!\n"
-                                f"Available functions:\n"
-                                f"- {res.emoji.like} (Like person)\n"
-                                f"- {res.emoji.dislike} (Get next)\n"
-                                f"- {res.emoji.report} (Send a complaint)\n"
-                                f"- {res.emoji.back} (Back to the main menu)\n",
+                                string.searching_friend_guide,
                                 keyboard=searching_friend_keyboard)
 
-        @self.callback_method(res.emoji.like)
+        @self.callback_method(emoji.like)
         def like_friend(bot, user):
             friend: User = user.env_vars.suggestions[user.env_vars.nextSuggestionsIndex - 1]
             user.liked_user_ids.add(friend.id)
@@ -48,18 +44,15 @@ class SearchingFriend(CallbackEnvironment):
             if friend.id in user.fan_ids:
                 # Its match
                 bot.vk.send_message(user.id,
-                                    f"Congratulations!\n"
-                                    f"This is the match.\n"
-                                    f"Here is the link to VK page:\n"
+                                    f"{string.searching_friend_match_1}"
                                     f"vk.com/id{friend.id}\n"
-                                    f"Good online time spending!")
+                                    f"{string.searching_friend_match_motivation_1}")
                 bot.vk.send_message(friend.id,
-                                    f"Congratulations!\n"
-                                    f"You have the match:\n"
+                                    f"{string.searching_friend_match_2}"
                                     f"{user.account_info()}\n"
-                                    f"VK link:\n"
+                                    f"VK:\n"
                                     f"vk.com/id{user.id}\n"
-                                    f"Don't be shy!",
+                                    f"{string.searching_friend_match_motivation_2}",
                                     attachments=(user.photo,))
                 friend.fan_ids.discard(user.id)
                 user.fan_ids.discard(friend.id)
@@ -68,18 +61,18 @@ class SearchingFriend(CallbackEnvironment):
 
             self.show_next_friend(bot, user)
 
-        @self.callback_method(res.emoji.dislike)
+        @self.callback_method(emoji.dislike)
         def skip_partner(bot, user):
             self.show_next_friend(bot, user)
 
-        @self.callback_method(res.emoji.report)
+        @self.callback_method(emoji.report)
         def report_friend(bot, user):
             # TODO: report
             bot.vk.send_message(user.id,
-                                "Report was sent to admin!",
+                                string.report_was_sent,
                                 keyboard=searching_friend_keyboard)
             skip_partner(bot, user)
 
-        @self.callback_method(res.emoji.back)
+        @self.callback_method(emoji.back)
         def exit_searching_friend(bot, user):
             self.exit_searching_friend(bot, user)
