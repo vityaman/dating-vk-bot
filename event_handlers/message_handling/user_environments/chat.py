@@ -86,7 +86,7 @@ class Chatting(InputEnvironment):
             self.close_current_chat(bot, user)
         elif bundle.get('text') == res.emoji.back:
             self.close_current_chat(bot, user)
-            self.exit_searching_chat(bot, user)
+            SearchingChat.exit_searching_chat(bot, user)
         else:
             bot.vk.send_message(user.env_vars.chat_partner.id,
                                 bot.chat_manager.formatted_text(bundle.get('text', '')),
