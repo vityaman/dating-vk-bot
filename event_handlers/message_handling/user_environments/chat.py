@@ -35,6 +35,15 @@ class SearchingChat(CallbackEnvironment):
                                 keyboard=chat_keyboard,
                                 attachments=(user.photo,))
 
+    def exit_searching_chat(self, bot, user):
+        if user in bot.chat_manager.queue:
+            bot.chat_manager.queue.remove(user)
+        user.env_type = User.Environment.MAIN_MENU
+        bot.vk.send_message(user.id,
+                            "OK, goodbye!\n"
+                            "See ya later...",
+                            keyboard=main_menu_keyboard)
+
     def initialize_methods(self):
         @self.callback_method("Guide")
         def searching_chat_guide(bot, user):
@@ -52,13 +61,7 @@ class SearchingChat(CallbackEnvironment):
 
         @self.callback_method(res.emoji.back)
         def exit_searching_chat(bot, user):
-            if user in bot.chat_manager.queue:
-                bot.chat_manager.queue.remove(user)
-            user.env_type = User.Environment.MAIN_MENU
-            bot.vk.send_message(user.id,
-                                "OK, goodbye!\n"
-                                "See ya later...",
-                                keyboard=main_menu_keyboard)
+            self.exit_searching_chat(bot, user)
 
 
 @UserMessageHandler.input_environment(User.Environment.CHATTING)
