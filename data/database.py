@@ -33,7 +33,7 @@ class Database(metaclass=MetaSingleton):
     USERS_TABLE = "users"
 
     def __init__(self):
-        self.database = psycopg2.connect(config.DATABASE_URL)
+        self.database = psycopg2.connect(config.DATABASE_URL, sslmode='require')
         self.cursor = self.database.cursor()
 
         self._initialize_if_first_create()
@@ -49,11 +49,6 @@ class Database(metaclass=MetaSingleton):
             f"photo TEXT);"
         )
         self.database.commit()
-
-    def __del__(self):
-        self.cursor.close()
-        self.database.commit()
-        self.database.close()
 
     def insert_user(self, user: User):
         self.cursor.execute(
@@ -101,4 +96,5 @@ class Database(metaclass=MetaSingleton):
 
     def close(self):
         self.cursor.close()
+        self.database.commit()
         self.database.close()
