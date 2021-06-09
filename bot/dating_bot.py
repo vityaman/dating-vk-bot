@@ -50,10 +50,12 @@ class DatingBot(metaclass=MetaSingleton):
         return True
 
     def save_user_data(self, user: User):
-        self.db.insert_or_update_user(user)
         if user.id in self.newbies_by_id:
+            self.db.update_user(user)
             self.newbies_by_id.pop(user.id)
             self.users_by_id[user.id] = user
+        else:
+            self.db.update_user(user)
 
     def get_suggestions_for_user(self, user: User, count=10) -> list:
         # 1) check people who liked user

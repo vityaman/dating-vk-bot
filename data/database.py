@@ -1,5 +1,5 @@
-import os
-import sqlite3
+import config
+import psycopg2
 from data.user import User
 from utils import MetaSingleton
 
@@ -30,11 +30,10 @@ def db_row_to_user(db_row: tuple):
 
 
 class Database(metaclass=MetaSingleton):
-    DATABASE_FILE_NAME = os.path.join(os.path.dirname(__file__), "database")
     USERS_TABLE = "users"
 
     def __init__(self):
-        self.database = sqlite3.connect(self.DATABASE_FILE_NAME)
+        self.database = psycopg2.connect(config.DATABASE_URL)
         self.cursor = self.database.cursor()
 
         self._initialize_if_first_create()
@@ -58,7 +57,7 @@ class Database(metaclass=MetaSingleton):
 
     def insert_user(self, user: User):
         self.cursor.execute(
-            f"INSERT INTO {self.USERS_TABLE} "
+            f"INSERT INTO {self.USERS_TABLE}"
             f"VALUES ({user.id}, '{user.name}', {user.age}, "
             f"'{user.about}', '{set_to_str(user.interests)}', '{user.photo}');"
         )
@@ -76,15 +75,6 @@ class Database(metaclass=MetaSingleton):
         )
         self.database.commit()
 
-    def insert_or_update_user(self, user: User):
-        self.cursor.execute(
-            f"INSERT OR REPLACE INTO {self.USERS_TABLE} "
-            f"VALUES ({user.id}, '{user.name}', {user.age}, "
-            f"'{user.about}', '{set_to_str(user.interests)}', "
-            f"'{user.photo}');"
-        )
-        self.database.commit()
-
     def delete_user_by_id(self, _id: int):
         self.cursor.execute(
             f"DELETE FROM {self.USERS_TABLE} WHERE id = {_id}"
@@ -95,13 +85,15 @@ class Database(metaclass=MetaSingleton):
         self.cursor.execute(
             f"SELECT * FROM {self.USERS_TABLE} WHERE id = {_id}"
         )
+        # TODO: fetchone
         users = self.cursor.fetchall()
         if len(users) == 1:
             return db_row_to_user(users[0])
         raise self.NoSuchUserException("No such user in table!")
 
     def all_users(self):
-        for row in self.cursor.execute(f"SELECT * FROM {self.USERS_TABLE}"):
+        self.cursor.execute(f"SELECT * FROM {self.USERS_TABLE}")
+        for row in self.cursor.fetchall():
             yield db_row_to_user(row)
 
     class NoSuchUserException(Exception):
