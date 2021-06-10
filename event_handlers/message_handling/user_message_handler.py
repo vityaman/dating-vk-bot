@@ -3,15 +3,12 @@ from event_handlers.message_handling.base_objects import MessageHandler, static_
 
 @static_singleton
 class UserMessageHandler(MessageHandler):
-    def initialize(self):
-        for environment in self.callback_environments:
-            self.callback_environments[environment].initialize_methods()
-
     def handle(self, bot, message):
         user_id: int = message.peer_id  # id of requesting user
         bundle = dict()  # storage of special data in user message data
 
-        bundle['text'] = message.text
+        if message.text != '':
+            bundle['text'] = message.text
 
         # get attachments
         for attachment in message.attachments:
@@ -22,9 +19,13 @@ class UserMessageHandler(MessageHandler):
 
         # get user from amin system
         user = bot.get_user_by_id_or_create_new(user_id)
-        if user.env_type in self.input_environments:
-            self.input_environments[user.env_type].input(bot, user, bundle)
-        elif bundle['text'] in self.callback_environments[user.env_type].callback_methods:
-            self.callback_environments[user.env_type].callback_methods[bundle['text']](bot, user)
+        if user.get_environment() in self.input_environments:
+            self.input_environments[user.get_environment()].input(bot, user, bundle)
+        elif bundle['text'] in self.callback_environments[user.get_environment()].callback_methods:
+            self.callback_environments[user.get_environment()].callback_methods[bundle['text']](bot, user)
         else:
-            self.callback_environments[user.env_type].callback_methods['Guide'](bot, user)
+            self.callback_environments[user.get_environment()].callback_methods['Guide'](bot, user)
+
+# TODO: it makes me fear:
+# DONT DELETE THIS
+from event_handlers.message_handling.user_environments import *

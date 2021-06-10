@@ -1,5 +1,7 @@
 import config
 import psycopg2
+
+from bot.bot_environment import BotEnvironment
 from data.user import User
 from utils import MetaSingleton
 
@@ -20,12 +22,12 @@ def str_to_set(string: str, type_cast, sep='|') -> set:
 
 
 def db_row_to_user(db_row: tuple):
-    return User(_id=db_row[0],
-                env_type=User.Environment.MAIN_MENU,
+    return User(vk_id=db_row[0],
+                environment=BotEnvironment.USER_MAIN_MENU,
                 name=db_row[1],
                 age=db_row[2],
                 about=db_row[3],
-                interests=str_to_set(db_row[4], type_cast=int),
+                interests=str_to_set(db_row[4], type_cast=str),
                 photo=db_row[5])
 
 
@@ -81,10 +83,9 @@ class Database(metaclass=MetaSingleton):
         self.cursor.execute(
             f"SELECT * FROM {self.USERS_TABLE} WHERE id = {_id}"
         )
-        # TODO: fetchone
-        users = self.cursor.fetchall()
-        if len(users) == 1:
-            return db_row_to_user(users[0])
+        user = self.cursor.fetchone()
+        if user:
+            return db_row_to_user(user)
         raise self.NoSuchUserException("No such user in table!")
 
     def all_users(self):

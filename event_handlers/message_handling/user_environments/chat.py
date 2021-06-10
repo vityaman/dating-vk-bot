@@ -1,77 +1,75 @@
-import resources.emojis as emoji
-import resources.strings as string
-
+from bot.dating_bot import DatingBot
+from bot.bot_environment import BotEnvironment
 from data.user import User
 from event_handlers.message_handling.base_objects import CallbackEnvironment, InputEnvironment
 from event_handlers.message_handling.user_message_handler import UserMessageHandler
 from vk_tools.vk_keyboards import *
 
 
-@UserMessageHandler.callback_environment(User.Environment.SEARCHING_CHAT)
+@UserMessageHandler.callback_environment(BotEnvironment.USER_SEARCHING_CHAT)
 class SearchingChat(CallbackEnvironment):
-    def find_chat(self, bot, user):
-        partner: User = bot.chat_manager.get_chat_partner(user)
+    def find_chat(self, bot: DatingBot, user: User):
+        partner = bot.chat_manager.get_chat_partner(user)
 
         if partner is None:
             bot.vk.send_message(user.id,
                                 string.chat_queue,
-                                keyboard=chat_keyboard)
+                                keyboard=user.get_keyboard())
         else:
             user.env_vars.chat_partner = partner
             partner.env_vars.chat_partner = user
 
-            user.env_type = User.Environment.CHATTING
+            user.go_to(BotEnvironment.USER_CHATTING)
             bot.vk.send_message(user.id,
                                 f"{string.chat_found}"
                                 f"{partner.account_info()}\n\n"
                                 f"{string.chat_talk}",
-                                keyboard=chat_keyboard,
+                                keyboard=user.get_keyboard(),
                                 attachments=(partner.photo,))
 
-            partner.env_type = User.Environment.CHATTING
+            partner.go_to(BotEnvironment.USER_CHATTING)
             bot.vk.send_message(partner.id,
                                 f"{string.chat_found}"
                                 f"{user.account_info()}\n\n"
                                 f"{string.chat_talk}",
-                                keyboard=chat_keyboard,
+                                keyboard=partner.get_keyboard(),
                                 attachments=(user.photo,))
 
-    def exit_searching_chat(self, bot, user):
+    def exit_searching_chat(self, bot: DatingBot, user: User):
         if user in bot.chat_manager.queue:
             bot.chat_manager.queue.remove(user)
-        user.env_type = User.Environment.MAIN_MENU
+        user.go_back()
         bot.vk.send_message(user.id,
                             string.chat_exit,
-                            keyboard=main_menu_keyboard)
+                            keyboard=user.get_keyboard())
 
     def initialize_methods(self):
         @self.callback_method("Guide")
-        def searching_chat_guide(bot, user):
+        def searching_chat_guide(bot: DatingBot, user: User):
             bot.vk.send_message(user.id,
                                 string.chat_guide,
-                                keyboard=chat_keyboard)
+                                keyboard=user.get_keyboard())
 
         @self.callback_method(emoji.search)
-        def find_chat(bot, user):
+        def find_chat(bot: DatingBot, user: User):
             self.find_chat(bot, user)
 
         @self.callback_method(emoji.back)
-        def exit_searching_chat(bot, user):
+        def exit_searching_chat(bot: DatingBot, user: User):
             self.exit_searching_chat(bot, user)
 
 
-@UserMessageHandler.input_environment(User.Environment.CHATTING)
+@UserMessageHandler.input_environment(BotEnvironment.USER_CHATTING)
 class Chatting(InputEnvironment):
-
-    def finish_chatting(self, bot, user):
+    def finish_chatting(self, bot: DatingBot, user: User):
         del user.env_vars.chat_partner
-        user.env_type = User.Environment.SEARCHING_CHAT
+        user.go_back()
 
         bot.vk.send_message(user.id,
                             string.chatting_exit,
-                            keyboard=chat_keyboard)
+                            keyboard=user.get_keyboard())
 
-    def close_current_chat(self, bot, user):
+    def close_current_chat(self, bot: DatingBot, user: User):
         self.finish_chatting(bot, user.env_vars.chat_partner)
         self.finish_chatting(bot, user)
 
@@ -80,14 +78,14 @@ class Chatting(InputEnvironment):
             self.close_current_chat(bot, user)
             SearchingChat.find_chat(bot, user)
         elif bundle.get('text') == emoji.report:
-            # TODO: report()
+            bot.create_report(user, user.env_vars.chat_partner)
             self.close_current_chat(bot, user)
         elif bundle.get('text') == emoji.back:
             self.close_current_chat(bot, user)
             SearchingChat.exit_searching_chat(bot, user)
         else:
             bot.vk.send_message(user.env_vars.chat_partner.id,
-                                bot.chat_manager.formatted_text(bundle.get('text', '')),
+                                bot.chat_manager.formatted_text(bundle.get('text', 'No text')),
                                 attachments=[bot.vk.save_photo_from_url(url) for url in
                                              bundle.get('photos', [])],
-                                keyboard=chat_keyboard)
+                                keyboard=user.get_keyboard())

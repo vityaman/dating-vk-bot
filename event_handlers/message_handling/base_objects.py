@@ -10,6 +10,10 @@ class MessageHandler:
         self.callback_environments = {}
         self.input_environments = {}
 
+    def initialize(self):
+        for environment in self.callback_environments:
+            self.callback_environments[environment].initialize_methods()
+
     def callback_environment(self, name):
         def decorator(klass):
             self.callback_environments[name] = static_singleton(klass)
@@ -23,9 +27,6 @@ class MessageHandler:
         return decorator
 
     def handle(self, bot: DatingBot, message):
-        raise NotImplementedError()
-
-    def initialize(self):
         raise NotImplementedError()
 
 

@@ -1,32 +1,25 @@
-from enum import IntEnum
+from enum import Enum
+from bot.bot_user import BotUser
+from bot.bot_environment import BotEnvironment
 
 
-class User:
-    class Environment(IntEnum):
-        BEGINNING = 0
-        SETTINGS = 1
-        SETTINGS_NAME = 2
-        SETTINGS_AGE = 3
-        SETTINGS_ABOUT = 4
-        SETTINGS_INTERESTS = 5
-        SETTINGS_PHOTO = 6
-        MAIN_MENU = 7
-        SEARCHING_FRIEND = 8
-        SEARCHING_CHAT = 9
-        CHATTING = 10
-
-    class Interest(IntEnum):
-        PROGRAMMING = 0
-        ENGLISH_TALKING = 1
-        LITERATURE = 2
-        MATH = 3
-        POLITICS = 4
-        PHOTOGRAPHY = 5
-        PAINTING = 6
-        ECONOMICS = 7
-        HISTORY = 8
-        SPORT = 9
-        MUSIC = 10
+class User(BotUser):
+    class Interest(Enum):
+        COMPUTER_SCIENCE = 'a'
+        ENGLISH_TALKING = 'b'
+        LITERATURE = 'c'
+        MATH = 'd'
+        POLITICS = 'e'
+        PHOTOGRAPHY = 'f'
+        PAINTING = 'g'
+        ECONOMICS = 'h'
+        HISTORY = 'i'
+        SPORT = 'j'
+        MUSIC = 'k'
+        GAMING = 'l'
+        MEDICINE = 'm'
+        HANDMADE = 'n'
+        LOVE = 'o'
 
         def __str__(self):
             name = self.name.lower().replace('_', ' ')
@@ -34,14 +27,14 @@ class User:
             return name
 
         @staticmethod
-        def contains(num: int):
-            return num in User.Interest._member_map_.values()
+        def contains(char: str):
+            return char in (i.value for i in User.Interest)
 
         @staticmethod
         def presentation() -> str:
             res = ''
-            for i in map(int, User.Interest):
-                res += str(i) + ': ' + str(User.Interest(i)) + '\n'
+            for interest in User.Interest:
+                res += interest.value + ': ' + str(interest) + '\n'
             return res
 
         @staticmethod
@@ -51,36 +44,20 @@ class User:
                 res += str(User.Interest(interest)) + ', '
             return res[:-2]
 
-    class EnvironmentVariables:
-        # v.var_name = value
-        def add(self, var_name: str, value=None):
-            self.__dict__ += {var_name: value}
+    def __init__(self, vk_id: int, environment: BotEnvironment = None,
+                 name: str = None, age: int = None,
+                 about: str = None, interests: set = None,
+                 photo: str = None,
+                 fan_ids: set = None):
 
-        # del v.var_name
-        def remove(self, var_name: str):
-            self.__dict__.pop(var_name)
-
-        def clear(self):
-            self.__dict__.clear()
-
-        def __repr__(self):
-            return repr(self.__dict__)
-
-    def __init__(self, _id: int, env_type: Environment = None,
-                 name: str = None, age: int = None, about: str = None,
-                 interests: set = None, photo: str = None, fan_ids: set = None):
-
-        self.id = _id
+        super().__init__(vk_id, environment)
+        self.id = vk_id
 
         self.name = name
         self.age = age
         self.about = about
         self.interests = interests if interests is not None else set()  # TODO: ternary operator is bad
         self.photo = photo
-        self.env_type = env_type
-
-        # Environment variables specified for Environment type
-        self.env_vars = User.EnvironmentVariables()
 
         # TODO: maybe save it somewhere?
         self.liked_user_ids = set()
@@ -105,4 +82,4 @@ class User:
                f"{str(User.Interest.get_string_list(self.interests))}\n"
 
     def __repr__(self):
-        return f"User({self.id}, {self.name}, {self.env_type}, {self.env_vars})"
+        return f"User({self.id}, {self.name}, {self.get_keyboard()}, {self.env_vars})"

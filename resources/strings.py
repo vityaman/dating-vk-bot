@@ -98,7 +98,7 @@ if config.LANGUAGE == lang.ru:
     settings_interests = \
         (f"Чем ты интересуешься?\n"
          f"Чтобы улучшить качество подбора друзей,\n"
-         f"Просто введи номера тэгов:\n\n")
+         f"Просто введи номера тэгов:")
     settings_photo = \
         (f"Все хотят тебя... увидеть!\n"
          f"Да я знаю, что ты милашечка.\n"
@@ -109,7 +109,7 @@ if config.LANGUAGE == lang.ru:
     settings_return = \
         f"Вернул тебя назад."
     settings_invalid_input = \
-        f"Это введеные данные инвалид или ты?"
+        f"Это введенные данные инвалид или ты?"
     settings_ok_name = \
         f"Приятно познакомиться!"
     settings_ok_age = \
@@ -220,7 +220,7 @@ elif config.LANGUAGE == lang.eng:
     settings_interests = \
         (f"Choice interests tags for your profile\n"
          f"It will improve your suggestions!\n"
-         f"Just type numbers of tags:\n\n")
+         f"Just type numbers of tags:")
     settings_photo = \
         (f"Everyone want to see you!\n"
          f"I'm sure you're beauty.\n"

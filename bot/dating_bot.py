@@ -1,12 +1,22 @@
+from collections import deque
+
+from bot.bot_environment import BotEnvironment
 from bot.chat_manager import ChatManager
 from data.blacklist_manager import BlacklistManager
 from utils import MetaSingleton
 from data.database import Database
 from vk_tools.vkapi_provider import VKAPIProvider
 from data.user import User
+import datetime
 
 
 class DatingBot(metaclass=MetaSingleton):
+    class Report:
+        def __init__(self, sender, criminal, time):
+            self.sender = sender
+            self.criminal = criminal
+            self.time = time
+
     def __init__(self, vk_group_id, vk_provider: VKAPIProvider):
         self.group_id = vk_group_id
 
@@ -15,7 +25,10 @@ class DatingBot(metaclass=MetaSingleton):
         self.chat_manager = ChatManager()
         self.blacklist = BlacklistManager()
 
+        self.reports: deque[DatingBot.Report] = deque()
+
         self.users_by_id = dict()
+        # Load all users from database
         for user in self.db.all_users():
             self.users_by_id[user.id] = user
         self.newbies_by_id = dict()
@@ -40,8 +53,8 @@ class DatingBot(metaclass=MetaSingleton):
         user = self.get_registered_user_by_id_or_none_if_not_found(_id)
         if user is None:
             # This user is newbie
-            user = User(_id=_id,
-                        env_type=User.Environment.BEGINNING)
+            user = User(vk_id=_id,
+                        environment=BotEnvironment.BEGINNING)
             self.newbies_by_id[_id] = user
         return user
 
@@ -88,3 +101,10 @@ class DatingBot(metaclass=MetaSingleton):
         suggestions_from_others.sort(key=lambda u: len(u.interests & user.interests), reverse=True)
 
         return suggestions_from_likes + suggestions_from_others
+
+    def create_report(self, sender, criminal):
+        self.reports.append(DatingBot.Report(sender, criminal,
+                                             datetime.datetime.now() + datetime.timedelta(hours=3)))
+
+    def get_report(self):
+        return self.reports.popleft()
