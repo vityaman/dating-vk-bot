@@ -54,7 +54,7 @@ class DatingBot(metaclass=MetaSingleton):
         if user is None:
             # This user is newbie
             user = User(vk_id=_id,
-                        environment=BotEnvironment.BEGINNING)
+                        environment=BotEnvironment.USER_BEGINNING)
             self.newbies_by_id[_id] = user
         return user
 

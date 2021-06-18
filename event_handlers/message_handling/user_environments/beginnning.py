@@ -11,7 +11,7 @@ class Beginning(CallbackEnvironment):
     def initialize_methods(self):
         @self.callback_method(string.begin)
         def begin(bot: DatingBot, user: User):
-            user.go_to(BotEnvironment.SETTINGS)
+            user.go_to(BotEnvironment.USER_SETTINGS)
             bot.vk.send_message(user.id,
                                 string.begin_hello,
                                 keyboard=user.get_keyboard())

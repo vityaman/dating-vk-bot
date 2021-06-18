@@ -33,7 +33,7 @@ class AdminMessageHandler(MessageHandler):
 
         if self.admin.get_environment() in self.input_environments:
             self.input_environments[self.admin.get_environment()].input(bot, self.admin, bundle)
-        elif bundle['text'] in self.callback_environments[self.admin.get_environment()].callback_methods:
+        elif bundle.get('text', '') in self.callback_environments[self.admin.get_environment()].callback_methods:
             self.callback_environments[self.admin.get_environment()].callback_methods[bundle['text']](bot, self.admin)
         else:
             self.callback_environments[self.admin.get_environment()].callback_methods['Guide'](bot, self.admin)

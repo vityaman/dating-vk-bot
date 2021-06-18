@@ -17,11 +17,11 @@ class UserMessageHandler(MessageHandler):
                     bundle['photos'] = []
                 bundle['photos'].append(attachment['photo']['sizes'][-1]['url'])
 
-        # get user from amin system
+        # get user from system
         user = bot.get_user_by_id_or_create_new(user_id)
         if user.get_environment() in self.input_environments:
             self.input_environments[user.get_environment()].input(bot, user, bundle)
-        elif bundle['text'] in self.callback_environments[user.get_environment()].callback_methods:
+        elif bundle.get('text', '') in self.callback_environments[user.get_environment()].callback_methods:
             self.callback_environments[user.get_environment()].callback_methods[bundle['text']](bot, user)
         else:
             self.callback_environments[user.get_environment()].callback_methods['Guide'](bot, user)
