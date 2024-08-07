@@ -23,7 +23,7 @@ services:
     image: postgres
     environment:
       PGUSER: ${DATING_POSTGRES_USER?:err}
-      POSTGRES_DB: ${DATING_POSTGRES_DB?:err}
+      POSTGRES_DATABASE: ${DATING_POSTGRES_DATABASE?:err}
       POSTGRES_USER: ${DATING_POSTGRES_USER?:err}
       POSTGRES_PASSWORD: ${DATING_POSTGRES_PASSWORD?:err}
     volumes:
