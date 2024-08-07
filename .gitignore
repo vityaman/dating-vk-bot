@@ -1,3 +1,4 @@
 secret.sh
 pgdata/
 data/blacklist.txt
+backup-*
