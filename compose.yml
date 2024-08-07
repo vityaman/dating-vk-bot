@@ -1,0 +1,39 @@
+services:
+  bot:
+    container_name: dating-bot
+    restart: always
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      VK_ACCESS_TOKEN: ${DATING_VK_ACCESS_TOKEN?:err}
+      VK_GROUP_ID: ${DATING_VK_GROUP_ID?:err}
+      VK_ADMIN_CHAT_ID: ${DATING_VK_ADMIN_CHAT_ID?:err}
+      VK_ADMIN_ID: ${DATING_VK_ADMIN_ID?:err}
+      DATABASE_URL: ${DATING_DATABASE_URL?:err}
+    depends_on:
+      database:
+        condition: service_healthy
+    networks:
+      - dating-network
+
+  database:
+    container_name: dating-database
+    image: postgres
+    restart: always
+    environment:
+      PGUSER: ${DATING_POSTGRES_USER?:err}
+      POSTGRES_DB: ${DATING_POSTGRES_DB?:err}
+      POSTGRES_USER: ${DATING_POSTGRES_USER?:err}
+      POSTGRES_PASSWORD: ${DATING_POSTGRES_PASSWORD?:err}
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready" ]
+      interval: 1s
+      timeout: 5s
+      retries: 10
+    networks:
+      - dating-network
+
+networks:
+  dating-network:
+    driver: bridge

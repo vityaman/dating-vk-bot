@@ -35,7 +35,7 @@ class Database(metaclass=MetaSingleton):
     USERS_TABLE = "users"
 
     def __init__(self):
-        self.database = psycopg2.connect(config.DATABASE_URL, sslmode='require')
+        self.database = psycopg2.connect(config.DATABASE_URL)
         self.cursor = self.database.cursor()
 
         self._initialize_if_first_create()
