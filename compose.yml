@@ -1,7 +1,6 @@
 services:
   bot:
     container_name: dating-bot
-    restart: always
     build:
       context: .
       dockerfile: Dockerfile
@@ -20,12 +19,13 @@ services:
   database:
     container_name: dating-database
     image: postgres
-    restart: always
     environment:
       PGUSER: ${DATING_POSTGRES_USER?:err}
       POSTGRES_DB: ${DATING_POSTGRES_DB?:err}
       POSTGRES_USER: ${DATING_POSTGRES_USER?:err}
       POSTGRES_PASSWORD: ${DATING_POSTGRES_PASSWORD?:err}
+    volumes:
+      - ./pgdata:/var/lib/postgresql/data
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready" ]
       interval: 1s
