@@ -61,7 +61,8 @@ class Settings(CallbackEnvironment):
                 bot.save_user_data(user)
 
                 user.go_back()
-                if user.get_keyboard() == BotEnvironment.USER_BEGINNING:
+
+                if user.get_environment() == BotEnvironment.USER_BEGINNING:
                     user.go_back()
                     user.go_to(BotEnvironment.USER_MAIN_MENU)
 
