@@ -56,32 +56,45 @@ class Database(metaclass=MetaSingleton):
         self.cursor.execute(
             f"INSERT INTO {self.USERS_TABLE} "
             f"(id, name, age, about, interests, photo) "
-            f"VALUES ({user.id}, '{user.name}', {user.age}, "
-            f"'{user.about}', '{set_to_str(user.interests)}', '{user.photo}');"
+            f"VALUES (%s, %s, %s, %s, %s, %s);", (
+                user.id, 
+                user.name, 
+                user.age, 
+                user.about, 
+                set_to_str(user.interests), 
+                user.photo,
+            )
         )
         self.database.commit()
 
     def update_user(self, user: User):
         self.cursor.execute(
             f"UPDATE {self.USERS_TABLE} "
-            f"SET name =       '{user.name}', "
-            f"    age =         {user.age}, "
-            f"    about =      '{user.about}', "
-            f"    interests =  '{set_to_str(user.interests)}', "
-            f"    photo =      '{user.photo}'"
-            f"WHERE id = {user.id};"
+            f"SET name =       %s, "
+            f"    age =        %s, "
+            f"    about =      %s, "
+            f"    interests =  %s, "
+            f"    photo =      %s"
+            f"WHERE id = %s;", (
+                user.name,
+                user.age,
+                user.about,
+                set_to_str(user.interests),
+                user.photo,
+                user.id,
+            )
         )
         self.database.commit()
 
     def delete_user_by_id(self, _id: int):
         self.cursor.execute(
-            f"DELETE FROM {self.USERS_TABLE} WHERE id = {_id}"
+            f"DELETE FROM {self.USERS_TABLE} WHERE id = %s", (_id,)
         )
         self.database.commit()
 
     def get_user_by_id(self, _id: int) -> User:
         self.cursor.execute(
-            f"SELECT * FROM {self.USERS_TABLE} WHERE id = {_id}"
+            f"SELECT * FROM {self.USERS_TABLE} WHERE id = %s", (_id,)
         )
         user = self.cursor.fetchone()
         if user:
