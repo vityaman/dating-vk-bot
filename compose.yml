@@ -10,6 +10,8 @@ services:
       VK_ADMIN_CHAT_ID: ${DATING_VK_ADMIN_CHAT_ID?:err}
       VK_ADMIN_ID: ${DATING_VK_ADMIN_ID?:err}
       DATABASE_URL: ${DATING_DATABASE_URL?:err}
+    volumes:
+      - ./data/blacklist.txt:/usr/src/app
     depends_on:
       database:
         condition: service_healthy
