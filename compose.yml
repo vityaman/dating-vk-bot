@@ -15,6 +15,12 @@ services:
     depends_on:
       database:
         condition: service_healthy
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 8s
+        max_attempts: 4
+        window: 16s
     networks:
       - dating-network
 
